@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+#  mongo:
+#    image: 'mongo'
+#    container_name: mongo
+#    volumes:
+#      - data:/data/db
+#    env_file:
+#      - ./env/mongo.env
+  #mongo-express:
+  backend:
+    build: ./
+    container_name: backend
+    #build: 
+      #context: ./backend # relative path
+      #dockerfile: Dockerfile # Name of dockerfile
+      #args:
+        #some-arg: 'bob' include args in build
+    ports:
+      - '80:80'
+#    volumes:
+#      - logs:/app/logs
+#      - ./backend:/app
+#      - /app/node_modules
+#    env_file:
+#      - ./env/backend.env
+#    depends_on:
+#      - mongo
+    
+#  frontend:
+#    build: ./frontend
+#    container_name: frontend
+#    ports:
+#      - 3000:3000
+#    volumes:
+#      - ./frontend/src:/app/src
+#    stdin_open: true
+#    tty: true
+#    depends_on:
+#      - backend
+
+volumes:
+  data:
+  logs:
+  

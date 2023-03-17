@@ -1,0 +1,127 @@
+# USER-API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-api
+spec  :
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: inovusniklas/kube-users:latest
+          env:
+            - name: AUTH_ADDRESS
+              #value: "10.100.132.200"
+              value: "auth-service.default"
+
+---
+
+# USER-API SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: user
+  ports:
+    - protocol: 'TCP'
+      port: 8080
+      targetPort: 8080
+
+---
+
+# AUTH-API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api
+spec  :
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: inovusniklas/kube-auth:latest
+
+---
+
+# AUTH-API SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  type: ClusterIP
+  selector:
+    app: auth
+  ports:
+    - protocol: 'TCP'
+      port: 80
+      targetPort: 80
+
+---
+
+# TASK-API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-api
+spec  :
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task
+  template:
+    metadata:
+      labels:
+        app: task
+    spec:
+      volumes:
+        - name: tasks
+          hostPath:
+            path: /data
+            type: DirectoryOrCreate
+
+      containers:
+        - name: task
+          image: inovusniklas/kube-task:latest
+          volumeMounts:
+            - name: tasks
+              mountPath: /app/task
+          env:
+            - name: AUTH_ADDRESS
+              value: "auth-service.default"
+            - name: TASKS_FOLDER
+              value:
+
+---
+
+# TASK-API SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: task
+  ports:
+    - protocol: 'TCP'
+      port: 8000
+      targetPort: 8000
+
